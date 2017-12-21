@@ -31,22 +31,35 @@ def get_auth_token():
     return response['access_token']
 
 def spotify_response_item_to_db_item(item):
+    attrs = dict(
+        played_at=dict(
+            S=item['played_at'],
+        ),
+        artist=dict(
+            S=item['track']['artists'][0]['name'],
+        ),
+        album=dict(
+            S=item['track']['album']['name'],
+        ),
+        title=dict(
+            S=item['track']['name'],
+        ),
+        track_id=dict(
+            S=item['track']['id'],
+        ),
+    )
+
+    if item['context'] is not None:
+        attrs['context_type'] = dict(
+            S=item['context']['type'],
+        )
+        attrs['context_uri'] = dict(
+            S=item['context']['uri'],
+        )
+
     return dict(
         PutRequest=dict(
-            Item=dict(
-                played_at=dict(
-                    S=item['played_at'],
-                ),
-                artist=dict(
-                    S=item['track']['artists'][0]['name'],
-                ),
-                album=dict(
-                    S=item['track']['album']['name'],
-                ),
-                title=dict(
-                    S=item['track']['name'],
-                ),
-            )
+            Item=attrs,
         )
     )
 
