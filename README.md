@@ -20,8 +20,8 @@ You'll need to set up a DynamoDB table named `spotify-plays` with `played_at` as
 ## Lambda Setup
 
   * You'll need to create the following environment variables:
-  ** `SPOTIFY_REFRESH_TOKEN`
-  ** `SPOTIFY_CLIENT_ID`
-  ** `SPOTIFY_CLIENT_SECRET`
+    * `SPOTIFY_REFRESH_TOKEN`
+    * `SPOTIFY_CLIENT_ID`
+    * `SPOTIFY_CLIENT_SECRET`
   * Explain KMS
   * Set up CloudWatch Event
