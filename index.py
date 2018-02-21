@@ -23,13 +23,21 @@ def get_auth_token():
         spotify_client_secret = kms.decrypt(
             CiphertextBlob=b64decode(os.environ['SPOTIFY_CLIENT_SECRET']))['Plaintext']
 
-    response = requests.post('https://accounts.spotify.com/api/token', data=dict(
-        client_id=spotify_client_id,
-        client_secret=spotify_client_secret,
-        refresh_token=refresh_token,
-        grant_type='refresh_token',
-    )).json()
-    return response['access_token']
+    response = None
+    while response is None:
+        response = requests.post('https://accounts.spotify.com/api/token', data=dict(
+            client_id=spotify_client_id,
+            client_secret=spotify_client_secret,
+            refresh_token=refresh_token,
+            grant_type='refresh_token',
+        ))
+        if response.status_code >= 500:
+            response = None
+            time.sleep(1)
+        else:
+            response.raise_for_status()
+
+    return response.json()['access_token']
 
 def spotify_response_item_to_db_item(item):
     attrs = dict(
