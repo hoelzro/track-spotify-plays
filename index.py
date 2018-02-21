@@ -3,6 +3,7 @@ import requests
 
 from base64 import b64decode
 import os
+import time
 
 refresh_token = None
 spotify_client_id = None
@@ -68,10 +69,18 @@ def handler(event, context):
     auth_token = get_auth_token()
     url = 'https://api.spotify.com/v1/me/player/recently-played'
     while url is not None:
-        result = requests.get(url,
-            headers=dict(
-                Authorization=f'Bearer {auth_token}',
-            )).json()
+        res = None
+        while res is None:
+            res = requests.get(url,
+                headers=dict(
+                    Authorization=f'Bearer {auth_token}',
+                ))
+            if res.status_code >= 500:
+                res = None
+                time.sleep(1)
+            else:
+                res.raise_for_status()
+        result = res.json()
         # XXX make sure your batches aren't too big
         db_items = [ spotify_response_item_to_db_item(item) for item in result['items'] ]
         db.batch_write_item(
