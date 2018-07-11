@@ -88,6 +88,7 @@ def handler(event, context):
                 time.sleep(1)
             else:
                 res.raise_for_status()
+        print('Status:', res.status_code)
         result = res.json()
         # XXX make sure your batches aren't too big
         db_items = [ spotify_response_item_to_db_item(item) for item in result['items'] ]
