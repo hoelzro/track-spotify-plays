@@ -3,6 +3,7 @@ import requests
 
 from base64 import b64decode
 import os
+import re
 import time
 
 refresh_token = None
@@ -40,9 +41,19 @@ def get_auth_token():
     return response.json()['access_token']
 
 def spotify_response_item_to_db_item(item):
+    played_at = item['played_at']
+    m = re.match('^(\d{4}-\d{2})-', played_at)
+
+    assert m, 'played_at must look like an ISO date time'
+
+    yyyymm = m.group(1)
+
     attrs = dict(
+        yyyymm=dict(
+            S=yyyymm,
+        ),
         played_at=dict(
-            S=item['played_at'],
+            S=played_at,
         ),
         artist=dict(
             S=item['track']['artists'][0]['name'],
