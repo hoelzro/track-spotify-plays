@@ -108,11 +108,12 @@ def handler(event, context):
         result = res.json()
         # XXX make sure your batches aren't too big
         db_items = [ spotify_response_item_to_db_item(item) for item in result['items'] ]
-        for db_item in db_items:
-            print('Adding:', db_item)
-        db.batch_write_item(
-            RequestItems={
-                'spotify-plays': db_items,
-            },
-        )
+        if db_items:
+            for db_item in db_items:
+                print('Adding:', db_item)
+            db.batch_write_item(
+                RequestItems={
+                    'spotify-plays': db_items,
+                },
+            )
         url = result.get('next')
