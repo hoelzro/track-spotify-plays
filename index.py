@@ -16,13 +16,18 @@ def get_auth_token():
     global spotify_client_secret
 
     if refresh_token is None:
-        kms = boto3.client('kms')
-        refresh_token = kms.decrypt(
-            CiphertextBlob=b64decode(os.environ['SPOTIFY_REFRESH_TOKEN']))['Plaintext']
-        spotify_client_id = kms.decrypt(
-            CiphertextBlob=b64decode(os.environ['SPOTIFY_CLIENT_ID']))['Plaintext']
-        spotify_client_secret = kms.decrypt(
-            CiphertextBlob=b64decode(os.environ['SPOTIFY_CLIENT_SECRET']))['Plaintext']
+        if 'AWS_LAMBDA_FUNCTION_NAME' in os.environ:
+            kms = boto3.client('kms')
+            refresh_token = kms.decrypt(
+                CiphertextBlob=b64decode(os.environ['SPOTIFY_REFRESH_TOKEN']))['Plaintext']
+            spotify_client_id = kms.decrypt(
+                CiphertextBlob=b64decode(os.environ['SPOTIFY_CLIENT_ID']))['Plaintext']
+            spotify_client_secret = kms.decrypt(
+                CiphertextBlob=b64decode(os.environ['SPOTIFY_CLIENT_SECRET']))['Plaintext']
+        else:
+            refresh_token = os.environ['SPOTIFY_REFRESH_TOKEN']
+            spotify_client_id = os.environ['SPOTIFY_CLIENT_ID']
+            spotify_client_secret = os.environ['SPOTIFY_CLIENT_SECRET']
 
     response = None
     while response is None:
